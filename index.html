@@ -4,7 +4,6 @@
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
-  // 🔥 NEW CONFIG (tumhara)
   const firebaseConfig = {
     apiKey: "AIzaSyCigq1eaGSsY6cqltkLW97xuP4eF0rdfIY",
     authDomain: "age-calculator-1ce36.firebaseapp.com",
@@ -18,32 +17,30 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  // LOGIN
-  document.getElementById("loginBtn").addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  // ✅ WAIT FOR DOM LOAD
+  window.addEventListener("DOMContentLoaded", () => {
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        alert("Login Successful 🚀");
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
-  });
+    const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
 
-  // SIGNUP
-  document.getElementById("signupBtn").addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    loginBtn.addEventListener("click", () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        alert("Account Created ✅");
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => alert("Login Successful 🚀"))
+        .catch((error) => alert(error.message));
+    });
+
+    signupBtn.addEventListener("click", () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => alert("Account Created ✅"))
+        .catch((error) => alert(error.message));
+    });
+
   });
 
 </script>
