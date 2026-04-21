@@ -59,7 +59,22 @@ button:hover{
   <div class="result" id="result"></div>
 </div>
 
-<script>
+<script><script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBRe2Q6i4Mi_W5ubX-EBXIIdiJ5-BFXpIY",
+  authDomain: "ai-deep-9fb36.firebaseapp.com",
+  projectId: "ai-deep-9fb36",
+  storageBucket: "ai-deep-9fb36.firebasestorage.app",
+  messagingSenderId: "123806685798",
+  appId: "1:123806685798:web:51c03c98afd07122c2aba7",
+  measurementId: "G-FB9B4RZFKJ"
+};
+
+const app = initializeApp(firebaseConfig);
+console.log("Firebase Connected ✅");
+</script>
 function calculateAge(){
   const dob = document.getElementById("dob").value;
   if(!dob){
