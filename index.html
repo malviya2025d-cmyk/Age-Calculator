@@ -44,6 +44,14 @@ button{
   margin-top:15px;
   line-height:1.6;
 }
+
+.dashboard{
+  margin-top:15px;
+  background:rgba(0,0,0,0.25);
+  padding:10px;
+  border-radius:10px;
+  font-size:14px;
+}
 </style>
 </head>
 
@@ -59,12 +67,20 @@ button{
 
 <div id="result"></div>
 
+<div class="dashboard">
+📊 Views: <span id="views">0</span>
 </div>
 
-<!-- 🔥 Firebase -->
+</div>
+
+<!-- 🔥 FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, increment } 
+from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+import { getAnalytics, logEvent } 
+from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRe2Q6i4Mi_W5ubX-EBXIIdiJ5-BFXpIY",
@@ -72,15 +88,49 @@ const firebaseConfig = {
   projectId: "ai-deep-9fb36",
   storageBucket: "ai-deep-9fb36.firebasestorage.app",
   messagingSenderId: "123806685798",
-  appId: "1:123806685798:web:51c03c98afd07122c2aba7"
+  appId: "1:123806685798:web:51c03c98afd07122c2aba7",
+  measurementId: "G-FB9B4RZFKJ"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const analytics = getAnalytics(app);
 
 let interval;
 
-// 🔥 FULL AGE CALC
+/* 🔥 PAGE VIEW TRACK */
+logEvent(analytics, 'page_view');
+
+/* 🔥 VISITOR COUNTER */
+async function increaseVisit(){
+  const ref = doc(db,"siteStats","counter");
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    await updateDoc(ref,{
+      views: increment(1)
+    });
+  }else{
+    await setDoc(ref,{
+      views: 1
+    });
+  }
+
+  loadVisits();
+}
+
+async function loadVisits(){
+  const ref = doc(db,"siteStats","counter");
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    document.getElementById("views").innerText = snap.data().views;
+  }
+}
+
+increaseVisit();
+
+/* 🔥 AGE CALC */
 function calculateAge(dob){
   const birth = new Date(dob);
   const now = new Date();
@@ -103,8 +153,11 @@ function calculateAge(dob){
   return {years,months,days,seconds};
 }
 
-// 🚀 MAIN FUNCTION
 window.saveData = async function(){
+
+  /* 🔥 CLICK TRACK */
+  logEvent(analytics, 'calculate_click');
+
   const name = document.getElementById("name").value;
   const dob = document.getElementById("dob").value;
 
@@ -118,34 +171,20 @@ window.saveData = async function(){
   function update(){
     const age = calculateAge(dob);
 
-    // 🎂 Next Birthday
-    let now = new Date();
-    let next = new Date(now.getFullYear(), new Date(dob).getMonth(), new Date(dob).getDate());
-    if(next < now) next.setFullYear(now.getFullYear()+1);
-
-    let diff = next - now;
-    let daysLeft = Math.floor(diff/86400000);
-
     document.getElementById("result").innerHTML =
     `👤 ${name}<br><br>
      🎉 ${age.years} Years<br>
      📅 ${age.months} Months<br>
      ⏳ ${age.days} Days<br>
-     ⏱ ${age.seconds} Seconds lived<br><br>
-     🎂 Birthday in ${daysLeft} days`;
+     ⏱ ${age.seconds} Seconds lived`;
   }
 
   update();
   interval = setInterval(update,1000);
 
-  // 💾 Save to Firebase
-  const age = calculateAge(dob);
   await addDoc(collection(db,"users"),{
     name:name,
-    dob:dob,
-    years:age.years,
-    months:age.months,
-    days:age.days
+    dob:dob
   });
 }
 </script>
