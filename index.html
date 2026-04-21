@@ -2,9 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
+<!-- 🔥 MOBILE FIX (MOST IMPORTANT) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Age Calculator</title>
 
 <style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
 body{
   font-family: Arial;
   background: linear-gradient(135deg,#1e3c72,#2a5298);
@@ -15,36 +25,51 @@ body{
   color:#fff;
 }
 
+/* 🔥 Responsive Card */
 .card{
   background:rgba(255,255,255,0.1);
-  padding:30px;
+  padding:25px;
   border-radius:15px;
   backdrop-filter:blur(10px);
   text-align:center;
-  width:300px;
+  width:90%;
+  max-width:350px;
 }
 
+/* Inputs */
 input,button{
   width:100%;
-  padding:10px;
-  margin-top:10px;
+  padding:12px;
+  margin-top:12px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
+  font-size:16px;
 }
 
+/* Button */
 button{
   background:#00c6ff;
   color:white;
   cursor:pointer;
+  transition:0.3s;
 }
 
 button:hover{
   background:#0072ff;
+  transform:scale(1.05);
 }
 
+/* Result */
 .result{
   margin-top:20px;
   font-size:18px;
+}
+
+/* 🔥 Mobile spacing fix */
+@media(max-width:480px){
+  body{
+    padding:10px;
+  }
 }
 </style>
 </head>
@@ -60,7 +85,7 @@ button:hover{
   <div class="result" id="result"></div>
 </div>
 
-<!-- 🔥 Firebase Script -->
+<!-- 🔥 Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
 
@@ -74,11 +99,11 @@ const firebaseConfig = {
   measurementId: "G-FB9B4RZFKJ"
 };
 
-const app = initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
 console.log("Firebase Connected ✅");
 </script>
 
-<!-- 🔥 Age Calculator Script -->
+<!-- 🔥 Age Calculator -->
 <script>
 function calculateAge(){
   const dob = document.getElementById("dob").value;
