@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Age Calculator</title>
+
 <style>
 body{
   font-family: Arial;
@@ -59,7 +60,8 @@ button:hover{
   <div class="result" id="result"></div>
 </div>
 
-<script><script type="module">
+<!-- 🔥 Firebase Script -->
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
 
 const firebaseConfig = {
@@ -75,6 +77,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 console.log("Firebase Connected ✅");
 </script>
+
+<!-- 🔥 Age Calculator Script -->
+<script>
 function calculateAge(){
   const dob = document.getElementById("dob").value;
   if(!dob){
