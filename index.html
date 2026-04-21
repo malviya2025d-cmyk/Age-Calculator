@@ -39,6 +39,11 @@ button{
   color:white;
   cursor:pointer;
 }
+
+.result{
+  margin-top:15px;
+  line-height:1.6;
+}
 </style>
 </head>
 
@@ -50,17 +55,16 @@ button{
 
 <input type="text" id="name" placeholder="Enter name">
 <input type="date" id="dob">
-<button onclick="saveData()">Save & Calculate</button>
+<button onclick="saveData()">Calculate</button>
 
 <div id="result"></div>
-<div id="users"></div>
 
 </div>
 
 <!-- 🔥 Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRe2Q6i4Mi_W5ubX-EBXIIdiJ5-BFXpIY",
@@ -74,7 +78,32 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🔥 SAVE DATA
+let interval;
+
+// 🔥 FULL AGE CALC
+function calculateAge(dob){
+  const birth = new Date(dob);
+  const now = new Date();
+
+  let years = now.getFullYear() - birth.getFullYear();
+  let months = now.getMonth() - birth.getMonth();
+  let days = now.getDate() - birth.getDate();
+  let seconds = Math.floor((now - birth)/1000);
+
+  if(days < 0){
+    months--;
+    days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+  }
+
+  if(months < 0){
+    years--;
+    months += 12;
+  }
+
+  return {years,months,days,seconds};
+}
+
+// 🚀 MAIN FUNCTION
 window.saveData = async function(){
   const name = document.getElementById("name").value;
   const dob = document.getElementById("dob").value;
@@ -84,37 +113,41 @@ window.saveData = async function(){
     return;
   }
 
-  const birth = new Date(dob);
-  const now = new Date();
-  const age = now.getFullYear() - birth.getFullYear();
+  clearInterval(interval);
 
-  document.getElementById("result").innerHTML =
-    `🎉 ${name}, your age is ${age}`;
+  function update(){
+    const age = calculateAge(dob);
 
+    // 🎂 Next Birthday
+    let now = new Date();
+    let next = new Date(now.getFullYear(), new Date(dob).getMonth(), new Date(dob).getDate());
+    if(next < now) next.setFullYear(now.getFullYear()+1);
+
+    let diff = next - now;
+    let daysLeft = Math.floor(diff/86400000);
+
+    document.getElementById("result").innerHTML =
+    `👤 ${name}<br><br>
+     🎉 ${age.years} Years<br>
+     📅 ${age.months} Months<br>
+     ⏳ ${age.days} Days<br>
+     ⏱ ${age.seconds} Seconds lived<br><br>
+     🎂 Birthday in ${daysLeft} days`;
+  }
+
+  update();
+  interval = setInterval(update,1000);
+
+  // 💾 Save to Firebase
+  const age = calculateAge(dob);
   await addDoc(collection(db,"users"),{
     name:name,
     dob:dob,
-    age:age,
-    time:new Date()
+    years:age.years,
+    months:age.months,
+    days:age.days
   });
-
-  loadUsers();
 }
-
-// 🔥 LOAD USERS
-async function loadUsers(){
-  const querySnapshot = await getDocs(collection(db,"users"));
-  let html = "<h3>Users:</h3>";
-
-  querySnapshot.forEach((doc)=>{
-    let d = doc.data();
-    html += `<p>${d.name} (${d.age})</p>`;
-  });
-
-  document.getElementById("users").innerHTML = html;
-}
-
-loadUsers();
 </script>
 
 </body>
