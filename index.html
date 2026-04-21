@@ -2,22 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<!-- 🔥 MOBILE FIX (MOST IMPORTANT) -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Age Calculator</title>
+<title>Age App Pro+</title>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
 body{
-  font-family: Arial;
-  background: linear-gradient(135deg,#1e3c72,#2a5298);
+  margin:0;
+  font-family:sans-serif;
+  background:linear-gradient(135deg,#141e30,#243b55);
   display:flex;
   justify-content:center;
   align-items:center;
@@ -25,51 +17,27 @@ body{
   color:#fff;
 }
 
-/* 🔥 Responsive Card */
 .card{
-  background:rgba(255,255,255,0.1);
-  padding:25px;
-  border-radius:15px;
-  backdrop-filter:blur(10px);
-  text-align:center;
   width:90%;
   max-width:350px;
+  padding:20px;
+  border-radius:15px;
+  background:rgba(255,255,255,0.1);
+  text-align:center;
 }
 
-/* Inputs */
 input,button{
   width:100%;
-  padding:12px;
-  margin-top:12px;
+  padding:10px;
+  margin-top:10px;
   border:none;
-  border-radius:10px;
-  font-size:16px;
+  border-radius:8px;
 }
 
-/* Button */
 button{
   background:#00c6ff;
   color:white;
   cursor:pointer;
-  transition:0.3s;
-}
-
-button:hover{
-  background:#0072ff;
-  transform:scale(1.05);
-}
-
-/* Result */
-.result{
-  margin-top:20px;
-  font-size:18px;
-}
-
-/* 🔥 Mobile spacing fix */
-@media(max-width:480px){
-  body{
-    padding:10px;
-  }
 }
 </style>
 </head>
@@ -77,17 +45,22 @@ button:hover{
 <body>
 
 <div class="card">
-  <h2>Age Calculator 🎂</h2>
 
-  <input type="date" id="dob">
-  <button onclick="calculateAge()">Calculate Age</button>
+<h2>🔥 Age App Pro+</h2>
 
-  <div class="result" id="result"></div>
+<input type="text" id="name" placeholder="Enter name">
+<input type="date" id="dob">
+<button onclick="saveData()">Save & Calculate</button>
+
+<div id="result"></div>
+<div id="users"></div>
+
 </div>
 
 <!-- 🔥 Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRe2Q6i4Mi_W5ubX-EBXIIdiJ5-BFXpIY",
@@ -95,43 +68,53 @@ const firebaseConfig = {
   projectId: "ai-deep-9fb36",
   storageBucket: "ai-deep-9fb36.firebasestorage.app",
   messagingSenderId: "123806685798",
-  appId: "1:123806685798:web:51c03c98afd07122c2aba7",
-  measurementId: "G-FB9B4RZFKJ"
+  appId: "1:123806685798:web:51c03c98afd07122c2aba7"
 };
 
-initializeApp(firebaseConfig);
-console.log("Firebase Connected ✅");
-</script>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-<!-- 🔥 Age Calculator -->
-<script>
-function calculateAge(){
+// 🔥 SAVE DATA
+window.saveData = async function(){
+  const name = document.getElementById("name").value;
   const dob = document.getElementById("dob").value;
-  if(!dob){
-    alert("Please select your date of birth");
+
+  if(!name || !dob){
+    alert("Fill all fields");
     return;
   }
 
-  const birthDate = new Date(dob);
-  const today = new Date();
+  const birth = new Date(dob);
+  const now = new Date();
+  const age = now.getFullYear() - birth.getFullYear();
 
-  let years = today.getFullYear() - birthDate.getFullYear();
-  let months = today.getMonth() - birthDate.getMonth();
-  let days = today.getDate() - birthDate.getDate();
+  document.getElementById("result").innerHTML =
+    `🎉 ${name}, your age is ${age}`;
 
-  if(days < 0){
-    months--;
-    days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-  }
+  await addDoc(collection(db,"users"),{
+    name:name,
+    dob:dob,
+    age:age,
+    time:new Date()
+  });
 
-  if(months < 0){
-    years--;
-    months += 12;
-  }
-
-  document.getElementById("result").innerHTML = 
-    `You are <b>${years}</b> years, <b>${months}</b> months, <b>${days}</b> days old 🎉`;
+  loadUsers();
 }
+
+// 🔥 LOAD USERS
+async function loadUsers(){
+  const querySnapshot = await getDocs(collection(db,"users"));
+  let html = "<h3>Users:</h3>";
+
+  querySnapshot.forEach((doc)=>{
+    let d = doc.data();
+    html += `<p>${d.name} (${d.age})</p>`;
+  });
+
+  document.getElementById("users").innerHTML = html;
+}
+
+loadUsers();
 </script>
 
 </body>
